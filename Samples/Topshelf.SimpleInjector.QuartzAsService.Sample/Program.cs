@@ -6,6 +6,9 @@ using Topshelf.SimpleInjector.Quartz;
 
 namespace Topshelf.SimpleInjector.QuartzAsService.Sample
 {
+    using System.Threading;
+    using System.Threading.Tasks;
+
     internal class Program
     {
         private static readonly Container _container = new Container();
@@ -58,9 +61,10 @@ namespace Topshelf.SimpleInjector.QuartzAsService.Sample
                 _dependencyInjected = dependencyInjected;
             }
 
-            public void Execute(IJobExecutionContext context)
+            public Task Execute(IJobExecutionContext context)
             {
                 _dependencyInjected.Execute();
+                return Task.FromResult(0);
             }
         }
 
@@ -79,18 +83,22 @@ namespace Topshelf.SimpleInjector.QuartzAsService.Sample
 
         public class RecurringJobListener : IJobListener
         {
-            public void JobExecutionVetoed(IJobExecutionContext context)
+            public Task JobExecutionVetoed(IJobExecutionContext context, CancellationToken cancellationToken = new CancellationToken())
             {
+                return Task.FromResult(0);
             }
 
-            public void JobToBeExecuted(IJobExecutionContext context)
+            public Task JobToBeExecuted(IJobExecutionContext context, CancellationToken cancellationToken = new CancellationToken())
             {
                 Console.WriteLine("[" + typeof(RecurringJobListener).Name + "] To be executed");
+                return Task.FromResult(0);
             }
 
-            public void JobWasExecuted(IJobExecutionContext context, JobExecutionException jobException)
+            public Task JobWasExecuted(IJobExecutionContext context, JobExecutionException jobException,
+                CancellationToken cancellationToken = new CancellationToken())
             {
                 Console.WriteLine("[" + typeof(RecurringJobListener).Name + "] Was executed");
+                return Task.FromResult(0);
             }
 
             public string Name => typeof(RecurringJobListener).Name;

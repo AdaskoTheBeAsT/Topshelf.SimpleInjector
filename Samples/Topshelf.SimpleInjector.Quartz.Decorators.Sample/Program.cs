@@ -6,6 +6,8 @@ using SimpleInjector.Lifestyles;
 
 namespace Topshelf.SimpleInjector.Quartz.Decorators.Sample
 {
+    using System.Threading.Tasks;
+
     internal class Program
     {
         private static readonly Container _container = new Container();
@@ -60,9 +62,11 @@ namespace Topshelf.SimpleInjector.Quartz.Decorators.Sample
                 _dependencyInjected = dependencyInjected;
             }
 
-            public void Execute(IJobExecutionContext context)
+            public Task Execute(IJobExecutionContext context)
             {
                 _dependencyInjected.DoSomething(); //Another dependency
+
+                return Task.FromResult(0);
             }
         }
 
@@ -88,10 +92,10 @@ namespace Topshelf.SimpleInjector.Quartz.Decorators.Sample
                 _decoratee = decoratee;
             }
 
-            public void Execute(IJobExecutionContext context)
+            public Task Execute(IJobExecutionContext context)
             {
                 Console.WriteLine("See, i am decorating the Job: " + typeof(JobWithInjectedDependenciesDecorated).Name + " with a logger!");
-                _decoratee.Execute(context);
+                return _decoratee.Execute(context);
             }
         }
 
@@ -106,13 +110,13 @@ namespace Topshelf.SimpleInjector.Quartz.Decorators.Sample
                 _container = container;
             }
 
-            public void Execute(IJobExecutionContext context)
+            public Task Execute(IJobExecutionContext context)
             {
                 using (ThreadScopedLifestyle.BeginScope(_container))
                 {
                     Console.WriteLine("See, i am decorating the Job: " + typeof(JobWithInjectedDependenciesDecorated).Name + " with a Thread Scope!");
                     var job = _decorateeFactory.Invoke();
-                    job.Execute(context);
+                    return job.Execute(context);
                 }
             }
         }

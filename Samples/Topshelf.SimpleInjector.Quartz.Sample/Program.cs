@@ -6,6 +6,8 @@ using SimpleInjector;
 
 namespace Topshelf.SimpleInjector.Quartz.Sample
 {
+    using System.Threading.Tasks;
+
     internal class Program
     {
         private static readonly Container _container = new Container();
@@ -42,7 +44,7 @@ namespace Topshelf.SimpleInjector.Quartz.Sample
                     .Select(x => x.type)
                     .ToArray();
 
-            _container.RegisterCollection<IJob>(jobTypes);
+            _container.Collection.Register<IJob>(jobTypes);
 
             HostFactory.Run(config =>
             {
@@ -124,9 +126,10 @@ namespace Topshelf.SimpleInjector.Quartz.Sample
                 _dependencyInjected = dependencyInjected;
             }
 
-            public void Execute(IJobExecutionContext context)
+            public Task Execute(IJobExecutionContext context)
             {
                 _dependencyInjected.Execute();
+                return Task.FromResult(0);
             }
         }
 
@@ -145,17 +148,19 @@ namespace Topshelf.SimpleInjector.Quartz.Sample
 
         public class SimpleRepeatableScheduledJob : IJob
         {
-            public void Execute(IJobExecutionContext context)
+            public Task Execute(IJobExecutionContext context)
             {
                 Console.WriteLine("[" + typeof(SimpleRepeatableScheduledJob).Name + "] Triggered " + DateTime.Now.ToLongTimeString());
+                return Task.FromResult(0);
             }
         }
 
         public class CronScheduledJob : IJob
         {
-            public void Execute(IJobExecutionContext context)
+            public Task Execute(IJobExecutionContext context)
             {
                 Console.WriteLine("[" + typeof(CronScheduledJob).Name + "] Triggered " + DateTime.Now.ToLongTimeString());
+                return Task.FromResult(0);
             }
         }
     }

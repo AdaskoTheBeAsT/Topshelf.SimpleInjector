@@ -1,13 +1,15 @@
 ﻿using System;
 using System.Linq;
 using Quartz;
-using Quartz.Collection;
 using Quartz.Spi;
 using Topshelf.Logging;
 using Topshelf.ServiceConfigurators;
 
 namespace Topshelf.SimpleInjector.Quartz
 {
+    using System.Collections.Generic;
+    using System.Threading;
+
     public static class ScheduleJobServiceConfiguratorExtensions
     {
         private static IScheduler Scheduler;
@@ -61,8 +63,8 @@ namespace Topshelf.SimpleInjector.Quartz
                     {
                         if (jobDetail != null && jobTriggers.Any())
                         {
-                            var triggersForJob = new HashSet<ITrigger>(jobTriggers);
-                            Scheduler.ScheduleJob(jobDetail, triggersForJob, false);
+                            var triggersForJob = new List<ITrigger>(jobTriggers);
+                            Scheduler.ScheduleJob(jobDetail, triggersForJob, false, default(CancellationToken));
                             log.Info($"[Topshelf.Quartz] Scheduled Job: {jobDetail.Key}");
 
                             foreach (var trigger in triggersForJob)

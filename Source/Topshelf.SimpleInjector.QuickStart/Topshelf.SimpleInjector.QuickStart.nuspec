@@ -15,7 +15,7 @@
 
       This QuickStart package will quickly get you up and running with your WindowsService.
 
-      Create a new Console Application project, install this package, make sure to overvwrite Program.cs, click Start and you have a running Service with SimpleInjector as IoC framework.
+      Create a new Console Application project, install this package, make sure to overwrite Program.cs, click Start and you have a running Service with SimpleInjector as IoC framework.
     </description>
     <copyright>Copyright $author$ 2014</copyright>
     <tags>Topshelf SimpleInjector IoC Inversion-of-control Service WindowsService Dependency Injection DI Host</tags>

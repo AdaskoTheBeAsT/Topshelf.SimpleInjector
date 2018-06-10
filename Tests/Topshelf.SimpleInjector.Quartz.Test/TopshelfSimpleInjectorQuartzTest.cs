@@ -9,6 +9,9 @@ using SimpleInjector;
 
 namespace Topshelf.SimpleInjector.Quartz.Test
 {
+    using System.Threading;
+    using System.Threading.Tasks;
+
     [TestFixture]
     public class TopshelfSimpleInjectorQuartzTest
     {
@@ -123,8 +126,19 @@ namespace Topshelf.SimpleInjector.Quartz.Test
             //Assert
             Assert.AreEqual(TopshelfExitCode.Ok, exitCode);
             testJobMock.Verify(job => job.Execute(It.IsAny<IJobExecutionContext>()), Times.AtLeastOnce);
-            jobListenerMock.Verify(listener => listener.JobToBeExecuted(It.IsAny<IJobExecutionContext>()), Times.AtLeastOnce);
-            jobListenerMock.Verify(listener => listener.JobWasExecuted(It.IsAny<IJobExecutionContext>(), It.IsAny<JobExecutionException>()), Times.AtLeastOnce);
+            jobListenerMock.Verify(
+                listener => 
+                    listener.JobToBeExecuted(
+                        It.IsAny<IJobExecutionContext>(),
+                        It.IsAny<CancellationToken>()),
+                Times.AtLeastOnce);
+            jobListenerMock.Verify(
+                listener =>
+                    listener.JobWasExecuted(
+                        It.IsAny<IJobExecutionContext>(),
+                        It.IsAny<JobExecutionException>(),
+                        It.IsAny<CancellationToken>()),
+                Times.AtLeastOnce);
         }
 
         [Test, RunInApplicationDomain]
@@ -392,9 +406,10 @@ namespace Topshelf.SimpleInjector.Quartz.Test
 
     public class TestJob : IJob
     {
-        public void Execute(IJobExecutionContext context)
+        public Task Execute(IJobExecutionContext context)
         {
             Console.WriteLine("Executing...");
+            return Task.Delay(0);
         }
     }
 
@@ -414,10 +429,11 @@ namespace Topshelf.SimpleInjector.Quartz.Test
             _decoratorDependency = decoratorDependency;
         }
 
-        public void Execute(IJobExecutionContext context)
+        public Task Execute(IJobExecutionContext context)
         {
-            _jobDecoratee.Execute(context);
+            var t = _jobDecoratee.Execute(context);
             _decoratorDependency.DoSomething();
+            return t;
         }
     }
 }
